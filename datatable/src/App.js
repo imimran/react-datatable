@@ -1,22 +1,33 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
-import { Container, Table, Form, FormControl, Button } from "react-bootstrap";
+import { Container, Form, FormControl, Button } from "react-bootstrap";
+import Posts from './components/Posts';
+import Pagination from "./components/Pagination";
 
 function App() {
-   const [users, setUsers]  = useState("")
-
+   const [posts, setPosts]  = useState([])
+   const [loading, setLoading] = useState(false)
+   const [ currentPage, setCurrentPage] = useState(1)
+   const [postsPerPage] = useState(5)
 
 useEffect(  () =>  {
-  const fetchData = async() =>{
-   const userData =  await axios.get("https://jsonplaceholder.typicode.com/users");
-   console.log(userData) 
-     setUsers(userData);
+  const fetchPosts = async() =>{
+    setLoading(true)
+   const res =  await axios.get("https://jsonplaceholder.typicode.com/posts");
+     setPosts(res.data);
+     setLoading(false)
   
   }
-  fetchData()
- 
-  
+  fetchPosts()
 }, [])
+console.log(posts);
+
+//Get current posts
+const indexOfLastPost = currentPage * postsPerPage
+const indexOfFirstPost = indexOfLastPost - postsPerPage
+const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost)
+
+const paginate = pageNumber => setCurrentPage(pageNumber)
 
   return (
     <div className="App">
@@ -27,28 +38,12 @@ useEffect(  () =>  {
         </Form>
         <br></br>
 
-        <Table striped bordered hover variant="dark" mt-5>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th> Name</th>
-              <th> Email</th>
-              <th>Address</th>
-            </tr>
-          </thead>
+        <Posts posts={currentPosts} loading={loading} />
 
-          <tbody>
-            {users.data &&
-              users.data.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
-                  <td>{item.email}</td>
-                  <td>{item.address.city}</td>
-                </tr>
-              ))}
-          </tbody>
-        </Table>
+        <Pagination postsPerPage={postsPerPage} totalPosts={posts.length}
+        paginate={paginate}
+        />
+     
       </Container>
     </div>
   );
