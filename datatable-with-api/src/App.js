@@ -31,7 +31,7 @@ export default function App() {
     // console.log(Object.keys(data[0]));
 
     getPosts();
-  }, [offset]);
+  }, []);
 
   //Get current data
   const indexOfLastPost = currentPage * postsPerPage;
