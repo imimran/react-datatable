@@ -1,28 +1,109 @@
 import React, { useState, useEffect } from "react";
-import "./style.css";
-import Table from "./Table";
+import DataTable from "./DataTable";
 import axios from "axios";
+import ReactPaginate from "react-paginate";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function App() {
-  const [headers, setHeaders] = useState([]);
   const [data, setData] = useState([]);
+  const [headers, setHeaders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(10);
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     const getPosts = async () => {
+      setLoading(true);
       const { data } = await axios.get(
         "https://jsonplaceholder.typicode.com/posts"
       );
       setData(data);
       setHeaders(Object.keys(data[0]));
+      setLoading(false);
     };
+    // console.log(data)
+    // console.log(Object.keys(data[0]));
 
     getPosts();
   }, []);
 
+  //Get current data
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+  const pageCount = Math.ceil(data.length / postsPerPage);
+
+  const handlePageClick = () => {};
+
+  const filteredData = currentPosts.filter(
+    (post) =>
+      post.title.toLowerCase().includes(keyword) ||
+      post.body.toLowerCase().includes(keyword)
+  );
+
+  const onInputChange = (e) => {
+    e.preventDefault();
+
+    setKeyword(e.target.value.toLowerCase());
+  };
+
   return (
-    <div>
-      <h1>Hello StackBlitz!</h1>
-      <Table headers={headers} data={data} />
+    <div className="container mt-5">
+      <div className="seller-profile-panel">
+        <div className="seller-profile-panel-body">
+          <div className="row justify-content-end mb-3">
+            <div className="col-lg-3">
+              <div className="table-search-form mt-5">
+                <input
+                  className="form-control"
+                  type="text"
+                  placeholder="Search..."
+                  onChange={onInputChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          <DataTable headers={headers} posts={filteredData} loading={loading} />
+
+          <div className="row align-items-center mt-2">
+            <div className="col-lg-6">
+              <div className="number-of-entries">
+                Showing {indexOfFirstPost + 1} to {indexOfLastPost} of{" "}
+                {data.length} entries
+              </div>
+            </div>
+            <div className="col-lg-6">
+              <ReactPaginate
+                previousLabel={"Prev"}
+                nextLabel={"Next"}
+                breakLabel={"..."}
+                breakClassName={"break-me"}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={5}
+                onPageChange={handlePageClick}
+                containerClassName={"pagination"}
+                subContainerClassName={"pages pagination"}
+                activeClassName={"active"}
+                breakClassName={"page-item"}
+                breakLinkClassName={"page-link"}
+                containerClassName={"pagination"}
+                pageClassName={"page-item"}
+                pageLinkClassName={"page-link"}
+                previousClassName={"page-item"}
+                previousLinkClassName={"page-link"}
+                nextClassName={"page-item"}
+                nextLinkClassName={"page-link"}
+                activeClassName={"active"}
+              />
+            </div>
+          </div>
+
+          
+        </div>
+      </div>
     </div>
   );
 }
