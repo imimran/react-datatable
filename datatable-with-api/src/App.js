@@ -37,7 +37,7 @@ export default function App() {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const slice = data.slice(offset, offset + postsPerPage);
-  const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
+  // const currentPosts = data.slice(indexOfFirstPost, indexOfLastPost);
   
 
   const handlePageClick = (e) => {
